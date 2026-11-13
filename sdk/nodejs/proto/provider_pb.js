@@ -59,6 +59,7 @@ goog.exportSymbol('proto.pulumirpc.GetMappingsRequest', null, global);
 goog.exportSymbol('proto.pulumirpc.GetMappingsResponse', null, global);
 goog.exportSymbol('proto.pulumirpc.GetSchemaRequest', null, global);
 goog.exportSymbol('proto.pulumirpc.GetSchemaResponse', null, global);
+goog.exportSymbol('proto.pulumirpc.Hint', null, global);
 goog.exportSymbol('proto.pulumirpc.InvokeRequest', null, global);
 goog.exportSymbol('proto.pulumirpc.InvokeResponse', null, global);
 goog.exportSymbol('proto.pulumirpc.ListRequest', null, global);
@@ -7472,7 +7473,9 @@ proto.pulumirpc.CheckConfigFailure.prototype.toObject = function(opt_includeInst
 proto.pulumirpc.CheckConfigFailure.toObject = function(includeInstance, msg) {
   var f, obj = {
 property: jspb.Message.getFieldWithDefault(msg, 1, ""),
-reason: jspb.Message.getFieldWithDefault(msg, 2, "")
+reason: jspb.Message.getFieldWithDefault(msg, 2, ""),
+hint: jspb.Message.getFieldWithDefault(msg, 4, 0),
+hintMessage: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -7517,6 +7520,14 @@ proto.pulumirpc.CheckConfigFailure.deserializeBinaryFromReader = function(msg, r
       var value = /** @type {string} */ (reader.readString());
       msg.setReason(value);
       break;
+    case 4:
+      var value = /** @type {!proto.pulumirpc.Hint} */ (reader.readEnum());
+      msg.setHint(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHintMessage(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -7560,6 +7571,20 @@ proto.pulumirpc.CheckConfigFailure.serializeBinaryToWriter = function(message, w
       f
     );
   }
+  f = message.getHint();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      4,
+      f
+    );
+  }
+  f = message.getHintMessage();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
 };
 
 
@@ -7596,6 +7621,42 @@ proto.pulumirpc.CheckConfigFailure.prototype.getReason = function() {
  */
 proto.pulumirpc.CheckConfigFailure.prototype.setReason = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional Hint hint = 4;
+ * @return {!proto.pulumirpc.Hint}
+ */
+proto.pulumirpc.CheckConfigFailure.prototype.getHint = function() {
+  return /** @type {!proto.pulumirpc.Hint} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/**
+ * @param {!proto.pulumirpc.Hint} value
+ * @return {!proto.pulumirpc.CheckConfigFailure} returns this
+ */
+proto.pulumirpc.CheckConfigFailure.prototype.setHint = function(value) {
+  return jspb.Message.setProto3EnumField(this, 4, value);
+};
+
+
+/**
+ * optional string hint_message = 5;
+ * @return {string}
+ */
+proto.pulumirpc.CheckConfigFailure.prototype.getHintMessage = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.pulumirpc.CheckConfigFailure} returns this
+ */
+proto.pulumirpc.CheckConfigFailure.prototype.setHintMessage = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -15921,5 +15982,13 @@ proto.pulumirpc.View.prototype.hasOutputs = function() {
   return jspb.Message.getField(this, 6) != null;
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.pulumirpc.Hint = {
+  HINT_UNSPECIFIED: 0,
+  HINT_DYNAMIC_CREDENTIALS: 1
+};
 
 goog.object.extend(exports, proto.pulumirpc);

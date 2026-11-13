@@ -227,6 +227,11 @@ type CheckConfigResponse struct {
 type CheckConfigFailure struct {
 	Property resource.PropertyKey // the provider configuration property that failed checking.
 	Reason   string               // the reason the property failed to check.
+
+	// Hint is a product hint relevant to the failure, if any, and HintMessage is its text, which the engine shows if
+	// it decides to show the hint.
+	Hint        Hint
+	HintMessage string
 }
 
 type DiffConfigRequest struct {

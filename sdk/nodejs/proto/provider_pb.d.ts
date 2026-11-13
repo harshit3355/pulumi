@@ -853,6 +853,10 @@ export class CheckConfigFailure extends jspb.Message {
     setProperty(value: string): CheckConfigFailure;
     getReason(): string;
     setReason(value: string): CheckConfigFailure;
+    getHint(): Hint;
+    setHint(value: Hint): CheckConfigFailure;
+    getHintMessage(): string;
+    setHintMessage(value: string): CheckConfigFailure;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CheckConfigFailure.AsObject;
@@ -868,6 +872,8 @@ export namespace CheckConfigFailure {
     export type AsObject = {
         property: string,
         reason: string,
+        hint: Hint,
+        hintMessage: string,
     }
 }
 
@@ -1955,4 +1961,9 @@ export namespace View {
         inputs?: google_protobuf_struct_pb.Struct.AsObject,
         outputs?: google_protobuf_struct_pb.Struct.AsObject,
     }
+}
+
+export enum Hint {
+    HINT_UNSPECIFIED = 0,
+    HINT_DYNAMIC_CREDENTIALS = 1,
 }

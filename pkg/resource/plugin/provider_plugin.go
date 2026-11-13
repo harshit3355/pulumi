@@ -705,8 +705,10 @@ func (p *provider) GetSchema(ctx context.Context, req GetSchemaRequest) (GetSche
 // checkConfigFailureFromRPC converts a CheckConfig2 failure received from a provider.
 func checkConfigFailureFromRPC(failure *pulumirpc.CheckConfigFailure) CheckConfigFailure {
 	return CheckConfigFailure{
-		Property: resource.PropertyKey(failure.GetProperty()),
-		Reason:   failure.GetReason(),
+		Property:    resource.PropertyKey(failure.GetProperty()),
+		Reason:      failure.GetReason(),
+		Hint:        hintFromRPC(failure.GetHint()),
+		HintMessage: failure.GetHintMessage(),
 	}
 }
 
@@ -751,8 +753,10 @@ func (p *provider) CheckConfig(ctx context.Context, req CheckConfigRequest) (Che
 	case err == nil:
 		rpcInputs = resp2.GetInputs()
 		failures = slice.Prealloc[CheckConfigFailure](len(resp2.GetFailures()))
-		for _, failure := range resp2.GetFailures() {
-			failures = append(failures, checkConfigFailureFromRPC(failure))
+		for _, rpcFailure := range resp2.GetFailures() {
+			failure := checkConfigFailureFromRPC(rpcFailure)
+			p.recordHint(failure.Hint, failure.HintMessage)
+			failures = append(failures, failure)
 		}
 	case rpcerror.Convert(err).Code() == codes.Unimplemented:
 		logging.V(7).Infof("%s CheckConfig2 is unimplemented: falling back to CheckConfig", label)

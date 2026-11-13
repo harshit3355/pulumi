@@ -37,6 +37,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// `Hint` names a product hint that is relevant to a [](pulumirpc.CheckConfigFailure) a provider reports. A product hint points
+// the user to a Pulumi feature that helps with this kind of failure. The provider says which hint is relevant and what it says, and
+// the engine decides whether to show it.
+type Hint int32
+
+const (
+	// No product hint is relevant.
+	Hint_HINT_UNSPECIFIED Hint = 0
+	// The failure comes from missing, rejected or expired credentials, so short-lived credentials from an identity
+	// provider, for example through OIDC, may help. Don't use it for configuration mistakes such as an unknown profile.
+	Hint_HINT_DYNAMIC_CREDENTIALS Hint = 1
+)
+
+// Enum value maps for Hint.
+var (
+	Hint_name = map[int32]string{
+		0: "HINT_UNSPECIFIED",
+		1: "HINT_DYNAMIC_CREDENTIALS",
+	}
+	Hint_value = map[string]int32{
+		"HINT_UNSPECIFIED":         0,
+		"HINT_DYNAMIC_CREDENTIALS": 1,
+	}
+)
+
+func (x Hint) Enum() *Hint {
+	p := new(Hint)
+	*p = x
+	return p
+}
+
+func (x Hint) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Hint) Descriptor() protoreflect.EnumDescriptor {
+	return file_pulumi_provider_proto_enumTypes[0].Descriptor()
+}
+
+func (Hint) Type() protoreflect.EnumType {
+	return &file_pulumi_provider_proto_enumTypes[0]
+}
+
+func (x Hint) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Hint.Descriptor instead.
+func (Hint) EnumDescriptor() ([]byte, []int) {
+	return file_pulumi_provider_proto_rawDescGZIP(), []int{0}
+}
+
 // The mode that controls how the provider handles the proposed name. If not specified, defaults to `PROPOSE`.
 //   - `PROPOSE`: The provider may use the proposed name as a suggestion but is free to modify it.
 //   - `ENFORCE`: The provider must use exactly the proposed name or return an error.
@@ -75,11 +127,11 @@ func (x CheckRequest_AutonamingOptions_Mode) String() string {
 }
 
 func (CheckRequest_AutonamingOptions_Mode) Descriptor() protoreflect.EnumDescriptor {
-	return file_pulumi_provider_proto_enumTypes[0].Descriptor()
+	return file_pulumi_provider_proto_enumTypes[1].Descriptor()
 }
 
 func (CheckRequest_AutonamingOptions_Mode) Type() protoreflect.EnumType {
-	return &file_pulumi_provider_proto_enumTypes[0]
+	return &file_pulumi_provider_proto_enumTypes[1]
 }
 
 func (x CheckRequest_AutonamingOptions_Mode) Number() protoreflect.EnumNumber {
@@ -140,11 +192,11 @@ func (x PropertyDiff_Kind) String() string {
 }
 
 func (PropertyDiff_Kind) Descriptor() protoreflect.EnumDescriptor {
-	return file_pulumi_provider_proto_enumTypes[1].Descriptor()
+	return file_pulumi_provider_proto_enumTypes[2].Descriptor()
 }
 
 func (PropertyDiff_Kind) Type() protoreflect.EnumType {
-	return &file_pulumi_provider_proto_enumTypes[1]
+	return &file_pulumi_provider_proto_enumTypes[2]
 }
 
 func (x PropertyDiff_Kind) Number() protoreflect.EnumNumber {
@@ -194,11 +246,11 @@ func (x DiffResponse_DiffChanges) String() string {
 }
 
 func (DiffResponse_DiffChanges) Descriptor() protoreflect.EnumDescriptor {
-	return file_pulumi_provider_proto_enumTypes[2].Descriptor()
+	return file_pulumi_provider_proto_enumTypes[3].Descriptor()
 }
 
 func (DiffResponse_DiffChanges) Type() protoreflect.EnumType {
-	return &file_pulumi_provider_proto_enumTypes[2]
+	return &file_pulumi_provider_proto_enumTypes[3]
 }
 
 func (x DiffResponse_DiffChanges) Number() protoreflect.EnumNumber {
@@ -1835,7 +1887,12 @@ type CheckConfigFailure struct {
 	// The provider configuration property that failed validation.
 	Property string `protobuf:"bytes,1,opt,name=property,proto3" json:"property,omitempty"`
 	// The reason that the named property failed validation.
-	Reason        string `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	Reason string `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	// A product hint that is relevant to this failure, if any. The engine may show it to the user.
+	Hint Hint `protobuf:"varint,4,opt,name=hint,proto3,enum=pulumirpc.Hint" json:"hint,omitempty"`
+	// The text of the product hint in `hint`. The engine shows it if it decides to show the hint. It may span several
+	// lines, for example to put a "Learn more" link on a line of its own.
+	HintMessage   string `protobuf:"bytes,5,opt,name=hint_message,json=hintMessage,proto3" json:"hint_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1880,6 +1937,20 @@ func (x *CheckConfigFailure) GetProperty() string {
 func (x *CheckConfigFailure) GetReason() string {
 	if x != nil {
 		return x.Reason
+	}
+	return ""
+}
+
+func (x *CheckConfigFailure) GetHint() Hint {
+	if x != nil {
+		return x.Hint
+	}
+	return Hint_HINT_UNSPECIFIED
+}
+
+func (x *CheckConfigFailure) GetHintMessage() string {
+	if x != nil {
+		return x.HintMessage
 	}
 	return ""
 }
@@ -4808,10 +4879,12 @@ const file_pulumi_provider_proto_rawDesc = "" +
 	"randomSeed\"\x81\x01\n" +
 	"\x13CheckConfigResponse\x12/\n" +
 	"\x06inputs\x18\x01 \x01(\v2\x17.google.protobuf.StructR\x06inputs\x129\n" +
-	"\bfailures\x18\x02 \x03(\v2\x1d.pulumirpc.CheckConfigFailureR\bfailures\"H\n" +
+	"\bfailures\x18\x02 \x03(\v2\x1d.pulumirpc.CheckConfigFailureR\bfailures\"\x90\x01\n" +
 	"\x12CheckConfigFailure\x12\x1a\n" +
 	"\bproperty\x18\x01 \x01(\tR\bproperty\x12\x16\n" +
-	"\x06reason\x18\x02 \x01(\tR\x06reason\"\x8f\x02\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\x12#\n" +
+	"\x04hint\x18\x04 \x01(\x0e2\x0f.pulumirpc.HintR\x04hint\x12!\n" +
+	"\fhint_message\x18\x05 \x01(\tR\vhintMessage\"\x8f\x02\n" +
 	"\vDiffRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
 	"\x03urn\x18\x02 \x01(\tR\x03urn\x12+\n" +
@@ -5038,7 +5111,10 @@ const file_pulumi_provider_proto_rawDesc = "" +
 	"\vparent_name\x18\x04 \x01(\tR\n" +
 	"parentName\x12/\n" +
 	"\x06inputs\x18\x05 \x01(\v2\x17.google.protobuf.StructR\x06inputs\x121\n" +
-	"\aoutputs\x18\x06 \x01(\v2\x17.google.protobuf.StructR\aoutputs2\xf8\v\n" +
+	"\aoutputs\x18\x06 \x01(\v2\x17.google.protobuf.StructR\aoutputs*:\n" +
+	"\x04Hint\x12\x14\n" +
+	"\x10HINT_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18HINT_DYNAMIC_CREDENTIALS\x10\x012\xf8\v\n" +
 	"\x10ResourceProvider\x12X\n" +
 	"\tHandshake\x12#.pulumirpc.ProviderHandshakeRequest\x1a$.pulumirpc.ProviderHandshakeResponse\"\x00\x12Q\n" +
 	"\fParameterize\x12\x1e.pulumirpc.ParameterizeRequest\x1a\x1f.pulumirpc.ParameterizeResponse\"\x00\x12H\n" +
@@ -5077,201 +5153,203 @@ func file_pulumi_provider_proto_rawDescGZIP() []byte {
 	return file_pulumi_provider_proto_rawDescData
 }
 
-var file_pulumi_provider_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_pulumi_provider_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_pulumi_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 62)
 var file_pulumi_provider_proto_goTypes = []any{
-	(CheckRequest_AutonamingOptions_Mode)(0),    // 0: pulumirpc.CheckRequest.AutonamingOptions.Mode
-	(PropertyDiff_Kind)(0),                      // 1: pulumirpc.PropertyDiff.Kind
-	(DiffResponse_DiffChanges)(0),               // 2: pulumirpc.DiffResponse.DiffChanges
-	(*ProviderHandshakeRequest)(nil),            // 3: pulumirpc.ProviderHandshakeRequest
-	(*ProviderHandshakeResponse)(nil),           // 4: pulumirpc.ProviderHandshakeResponse
-	(*ParameterizeRequest)(nil),                 // 5: pulumirpc.ParameterizeRequest
-	(*ParameterizeResponse)(nil),                // 6: pulumirpc.ParameterizeResponse
-	(*GetSchemaRequest)(nil),                    // 7: pulumirpc.GetSchemaRequest
-	(*GetSchemaResponse)(nil),                   // 8: pulumirpc.GetSchemaResponse
-	(*ConfigureRequest)(nil),                    // 9: pulumirpc.ConfigureRequest
-	(*ConfigureResponse)(nil),                   // 10: pulumirpc.ConfigureResponse
-	(*ConfigureErrorMissingKeys)(nil),           // 11: pulumirpc.ConfigureErrorMissingKeys
-	(*InvokeRequest)(nil),                       // 12: pulumirpc.InvokeRequest
-	(*InvokeResponse)(nil),                      // 13: pulumirpc.InvokeResponse
-	(*CallRequest)(nil),                         // 14: pulumirpc.CallRequest
-	(*CallResponse)(nil),                        // 15: pulumirpc.CallResponse
-	(*CheckRequest)(nil),                        // 16: pulumirpc.CheckRequest
-	(*CheckResponse)(nil),                       // 17: pulumirpc.CheckResponse
-	(*CheckFailure)(nil),                        // 18: pulumirpc.CheckFailure
-	(*CheckConfigRequest)(nil),                  // 19: pulumirpc.CheckConfigRequest
-	(*CheckConfigResponse)(nil),                 // 20: pulumirpc.CheckConfigResponse
-	(*CheckConfigFailure)(nil),                  // 21: pulumirpc.CheckConfigFailure
-	(*DiffRequest)(nil),                         // 22: pulumirpc.DiffRequest
-	(*PropertyDiff)(nil),                        // 23: pulumirpc.PropertyDiff
-	(*DiffResponse)(nil),                        // 24: pulumirpc.DiffResponse
-	(*CreateRequest)(nil),                       // 25: pulumirpc.CreateRequest
-	(*CreateResponse)(nil),                      // 26: pulumirpc.CreateResponse
-	(*ReadRequest)(nil),                         // 27: pulumirpc.ReadRequest
-	(*ReadResponse)(nil),                        // 28: pulumirpc.ReadResponse
-	(*ListRequest)(nil),                         // 29: pulumirpc.ListRequest
-	(*ListResponse)(nil),                        // 30: pulumirpc.ListResponse
-	(*UpdateRequest)(nil),                       // 31: pulumirpc.UpdateRequest
-	(*UpdateResponse)(nil),                      // 32: pulumirpc.UpdateResponse
-	(*DeleteRequest)(nil),                       // 33: pulumirpc.DeleteRequest
-	(*ConstructRequest)(nil),                    // 34: pulumirpc.ConstructRequest
-	(*ConstructResponse)(nil),                   // 35: pulumirpc.ConstructResponse
-	(*ErrorResourceInitFailed)(nil),             // 36: pulumirpc.ErrorResourceInitFailed
-	(*ErrorResourceAwaitFailed)(nil),            // 37: pulumirpc.ErrorResourceAwaitFailed
-	(*GetMappingRequest)(nil),                   // 38: pulumirpc.GetMappingRequest
-	(*GetMappingResponse)(nil),                  // 39: pulumirpc.GetMappingResponse
-	(*GetMappingsRequest)(nil),                  // 40: pulumirpc.GetMappingsRequest
-	(*GetMappingsResponse)(nil),                 // 41: pulumirpc.GetMappingsResponse
-	(*View)(nil),                                // 42: pulumirpc.View
-	(*ParameterizeRequest_ParametersArgs)(nil),  // 43: pulumirpc.ParameterizeRequest.ParametersArgs
-	(*ParameterizeRequest_ParametersValue)(nil), // 44: pulumirpc.ParameterizeRequest.ParametersValue
-	nil, // 45: pulumirpc.ConfigureRequest.VariablesEntry
-	(*ConfigureErrorMissingKeys_MissingKey)(nil), // 46: pulumirpc.ConfigureErrorMissingKeys.MissingKey
-	(*CallRequest_ArgumentDependencies)(nil),     // 47: pulumirpc.CallRequest.ArgumentDependencies
-	nil,                                          // 48: pulumirpc.CallRequest.ArgDependenciesEntry
-	nil,                                          // 49: pulumirpc.CallRequest.ConfigEntry
-	(*CallResponse_ReturnDependencies)(nil),      // 50: pulumirpc.CallResponse.ReturnDependencies
-	nil,                                          // 51: pulumirpc.CallResponse.ReturnDependenciesEntry
-	(*CheckRequest_AutonamingOptions)(nil),       // 52: pulumirpc.CheckRequest.AutonamingOptions
-	nil,                                          // 53: pulumirpc.DiffResponse.DetailedDiffEntry
-	(*ListResponse_Computed)(nil),                // 54: pulumirpc.ListResponse.Computed
-	(*ListResponse_Result)(nil),                  // 55: pulumirpc.ListResponse.Result
-	(*ListResponse_Continuation)(nil),            // 56: pulumirpc.ListResponse.Continuation
-	(*ConstructRequest_PropertyDependencies)(nil), // 57: pulumirpc.ConstructRequest.PropertyDependencies
-	(*ConstructRequest_CustomTimeouts)(nil),       // 58: pulumirpc.ConstructRequest.CustomTimeouts
-	nil,                                           // 59: pulumirpc.ConstructRequest.ConfigEntry
-	nil,                                           // 60: pulumirpc.ConstructRequest.InputDependenciesEntry
-	nil,                                           // 61: pulumirpc.ConstructRequest.ProvidersEntry
-	(*ConstructRequest_ResourceHooksBinding)(nil),  // 62: pulumirpc.ConstructRequest.ResourceHooksBinding
-	(*ConstructResponse_PropertyDependencies)(nil), // 63: pulumirpc.ConstructResponse.PropertyDependencies
-	nil,                     // 64: pulumirpc.ConstructResponse.StateDependenciesEntry
-	(*structpb.Struct)(nil), // 65: google.protobuf.Struct
-	(*Alias)(nil),           // 66: pulumirpc.Alias
-	(*structpb.Value)(nil),  // 67: google.protobuf.Value
-	(*emptypb.Empty)(nil),   // 68: google.protobuf.Empty
-	(*PluginAttach)(nil),    // 69: pulumirpc.PluginAttach
-	(*PluginInfo)(nil),      // 70: pulumirpc.PluginInfo
+	(Hint)(0),                                   // 0: pulumirpc.Hint
+	(CheckRequest_AutonamingOptions_Mode)(0),    // 1: pulumirpc.CheckRequest.AutonamingOptions.Mode
+	(PropertyDiff_Kind)(0),                      // 2: pulumirpc.PropertyDiff.Kind
+	(DiffResponse_DiffChanges)(0),               // 3: pulumirpc.DiffResponse.DiffChanges
+	(*ProviderHandshakeRequest)(nil),            // 4: pulumirpc.ProviderHandshakeRequest
+	(*ProviderHandshakeResponse)(nil),           // 5: pulumirpc.ProviderHandshakeResponse
+	(*ParameterizeRequest)(nil),                 // 6: pulumirpc.ParameterizeRequest
+	(*ParameterizeResponse)(nil),                // 7: pulumirpc.ParameterizeResponse
+	(*GetSchemaRequest)(nil),                    // 8: pulumirpc.GetSchemaRequest
+	(*GetSchemaResponse)(nil),                   // 9: pulumirpc.GetSchemaResponse
+	(*ConfigureRequest)(nil),                    // 10: pulumirpc.ConfigureRequest
+	(*ConfigureResponse)(nil),                   // 11: pulumirpc.ConfigureResponse
+	(*ConfigureErrorMissingKeys)(nil),           // 12: pulumirpc.ConfigureErrorMissingKeys
+	(*InvokeRequest)(nil),                       // 13: pulumirpc.InvokeRequest
+	(*InvokeResponse)(nil),                      // 14: pulumirpc.InvokeResponse
+	(*CallRequest)(nil),                         // 15: pulumirpc.CallRequest
+	(*CallResponse)(nil),                        // 16: pulumirpc.CallResponse
+	(*CheckRequest)(nil),                        // 17: pulumirpc.CheckRequest
+	(*CheckResponse)(nil),                       // 18: pulumirpc.CheckResponse
+	(*CheckFailure)(nil),                        // 19: pulumirpc.CheckFailure
+	(*CheckConfigRequest)(nil),                  // 20: pulumirpc.CheckConfigRequest
+	(*CheckConfigResponse)(nil),                 // 21: pulumirpc.CheckConfigResponse
+	(*CheckConfigFailure)(nil),                  // 22: pulumirpc.CheckConfigFailure
+	(*DiffRequest)(nil),                         // 23: pulumirpc.DiffRequest
+	(*PropertyDiff)(nil),                        // 24: pulumirpc.PropertyDiff
+	(*DiffResponse)(nil),                        // 25: pulumirpc.DiffResponse
+	(*CreateRequest)(nil),                       // 26: pulumirpc.CreateRequest
+	(*CreateResponse)(nil),                      // 27: pulumirpc.CreateResponse
+	(*ReadRequest)(nil),                         // 28: pulumirpc.ReadRequest
+	(*ReadResponse)(nil),                        // 29: pulumirpc.ReadResponse
+	(*ListRequest)(nil),                         // 30: pulumirpc.ListRequest
+	(*ListResponse)(nil),                        // 31: pulumirpc.ListResponse
+	(*UpdateRequest)(nil),                       // 32: pulumirpc.UpdateRequest
+	(*UpdateResponse)(nil),                      // 33: pulumirpc.UpdateResponse
+	(*DeleteRequest)(nil),                       // 34: pulumirpc.DeleteRequest
+	(*ConstructRequest)(nil),                    // 35: pulumirpc.ConstructRequest
+	(*ConstructResponse)(nil),                   // 36: pulumirpc.ConstructResponse
+	(*ErrorResourceInitFailed)(nil),             // 37: pulumirpc.ErrorResourceInitFailed
+	(*ErrorResourceAwaitFailed)(nil),            // 38: pulumirpc.ErrorResourceAwaitFailed
+	(*GetMappingRequest)(nil),                   // 39: pulumirpc.GetMappingRequest
+	(*GetMappingResponse)(nil),                  // 40: pulumirpc.GetMappingResponse
+	(*GetMappingsRequest)(nil),                  // 41: pulumirpc.GetMappingsRequest
+	(*GetMappingsResponse)(nil),                 // 42: pulumirpc.GetMappingsResponse
+	(*View)(nil),                                // 43: pulumirpc.View
+	(*ParameterizeRequest_ParametersArgs)(nil),  // 44: pulumirpc.ParameterizeRequest.ParametersArgs
+	(*ParameterizeRequest_ParametersValue)(nil), // 45: pulumirpc.ParameterizeRequest.ParametersValue
+	nil, // 46: pulumirpc.ConfigureRequest.VariablesEntry
+	(*ConfigureErrorMissingKeys_MissingKey)(nil), // 47: pulumirpc.ConfigureErrorMissingKeys.MissingKey
+	(*CallRequest_ArgumentDependencies)(nil),     // 48: pulumirpc.CallRequest.ArgumentDependencies
+	nil,                                          // 49: pulumirpc.CallRequest.ArgDependenciesEntry
+	nil,                                          // 50: pulumirpc.CallRequest.ConfigEntry
+	(*CallResponse_ReturnDependencies)(nil),      // 51: pulumirpc.CallResponse.ReturnDependencies
+	nil,                                          // 52: pulumirpc.CallResponse.ReturnDependenciesEntry
+	(*CheckRequest_AutonamingOptions)(nil),       // 53: pulumirpc.CheckRequest.AutonamingOptions
+	nil,                                          // 54: pulumirpc.DiffResponse.DetailedDiffEntry
+	(*ListResponse_Computed)(nil),                // 55: pulumirpc.ListResponse.Computed
+	(*ListResponse_Result)(nil),                  // 56: pulumirpc.ListResponse.Result
+	(*ListResponse_Continuation)(nil),            // 57: pulumirpc.ListResponse.Continuation
+	(*ConstructRequest_PropertyDependencies)(nil), // 58: pulumirpc.ConstructRequest.PropertyDependencies
+	(*ConstructRequest_CustomTimeouts)(nil),       // 59: pulumirpc.ConstructRequest.CustomTimeouts
+	nil,                                           // 60: pulumirpc.ConstructRequest.ConfigEntry
+	nil,                                           // 61: pulumirpc.ConstructRequest.InputDependenciesEntry
+	nil,                                           // 62: pulumirpc.ConstructRequest.ProvidersEntry
+	(*ConstructRequest_ResourceHooksBinding)(nil),  // 63: pulumirpc.ConstructRequest.ResourceHooksBinding
+	(*ConstructResponse_PropertyDependencies)(nil), // 64: pulumirpc.ConstructResponse.PropertyDependencies
+	nil,                     // 65: pulumirpc.ConstructResponse.StateDependenciesEntry
+	(*structpb.Struct)(nil), // 66: google.protobuf.Struct
+	(*Alias)(nil),           // 67: pulumirpc.Alias
+	(*structpb.Value)(nil),  // 68: google.protobuf.Value
+	(*emptypb.Empty)(nil),   // 69: google.protobuf.Empty
+	(*PluginAttach)(nil),    // 70: pulumirpc.PluginAttach
+	(*PluginInfo)(nil),      // 71: pulumirpc.PluginInfo
 }
 var file_pulumi_provider_proto_depIdxs = []int32{
-	43, // 0: pulumirpc.ParameterizeRequest.args:type_name -> pulumirpc.ParameterizeRequest.ParametersArgs
-	44, // 1: pulumirpc.ParameterizeRequest.value:type_name -> pulumirpc.ParameterizeRequest.ParametersValue
-	45, // 2: pulumirpc.ConfigureRequest.variables:type_name -> pulumirpc.ConfigureRequest.VariablesEntry
-	65, // 3: pulumirpc.ConfigureRequest.args:type_name -> google.protobuf.Struct
-	46, // 4: pulumirpc.ConfigureErrorMissingKeys.missingKeys:type_name -> pulumirpc.ConfigureErrorMissingKeys.MissingKey
-	65, // 5: pulumirpc.InvokeRequest.args:type_name -> google.protobuf.Struct
-	65, // 6: pulumirpc.InvokeResponse.return:type_name -> google.protobuf.Struct
-	18, // 7: pulumirpc.InvokeResponse.failures:type_name -> pulumirpc.CheckFailure
-	65, // 8: pulumirpc.CallRequest.args:type_name -> google.protobuf.Struct
-	48, // 9: pulumirpc.CallRequest.argDependencies:type_name -> pulumirpc.CallRequest.ArgDependenciesEntry
-	49, // 10: pulumirpc.CallRequest.config:type_name -> pulumirpc.CallRequest.ConfigEntry
-	65, // 11: pulumirpc.CallResponse.return:type_name -> google.protobuf.Struct
-	18, // 12: pulumirpc.CallResponse.failures:type_name -> pulumirpc.CheckFailure
-	51, // 13: pulumirpc.CallResponse.returnDependencies:type_name -> pulumirpc.CallResponse.ReturnDependenciesEntry
-	65, // 14: pulumirpc.CheckRequest.olds:type_name -> google.protobuf.Struct
-	65, // 15: pulumirpc.CheckRequest.news:type_name -> google.protobuf.Struct
-	52, // 16: pulumirpc.CheckRequest.autonaming:type_name -> pulumirpc.CheckRequest.AutonamingOptions
-	65, // 17: pulumirpc.CheckRequest.old_outputs:type_name -> google.protobuf.Struct
-	65, // 18: pulumirpc.CheckResponse.inputs:type_name -> google.protobuf.Struct
-	18, // 19: pulumirpc.CheckResponse.failures:type_name -> pulumirpc.CheckFailure
-	65, // 20: pulumirpc.CheckConfigRequest.old_inputs:type_name -> google.protobuf.Struct
-	65, // 21: pulumirpc.CheckConfigRequest.new_inputs:type_name -> google.protobuf.Struct
-	65, // 22: pulumirpc.CheckConfigRequest.old_outputs:type_name -> google.protobuf.Struct
-	65, // 23: pulumirpc.CheckConfigResponse.inputs:type_name -> google.protobuf.Struct
-	21, // 24: pulumirpc.CheckConfigResponse.failures:type_name -> pulumirpc.CheckConfigFailure
-	65, // 25: pulumirpc.DiffRequest.olds:type_name -> google.protobuf.Struct
-	65, // 26: pulumirpc.DiffRequest.news:type_name -> google.protobuf.Struct
-	65, // 27: pulumirpc.DiffRequest.old_inputs:type_name -> google.protobuf.Struct
-	1,  // 28: pulumirpc.PropertyDiff.kind:type_name -> pulumirpc.PropertyDiff.Kind
-	2,  // 29: pulumirpc.DiffResponse.changes:type_name -> pulumirpc.DiffResponse.DiffChanges
-	53, // 30: pulumirpc.DiffResponse.detailedDiff:type_name -> pulumirpc.DiffResponse.DetailedDiffEntry
-	65, // 31: pulumirpc.CreateRequest.properties:type_name -> google.protobuf.Struct
-	65, // 32: pulumirpc.CreateResponse.properties:type_name -> google.protobuf.Struct
-	65, // 33: pulumirpc.ReadRequest.properties:type_name -> google.protobuf.Struct
-	65, // 34: pulumirpc.ReadRequest.inputs:type_name -> google.protobuf.Struct
-	42, // 35: pulumirpc.ReadRequest.old_views:type_name -> pulumirpc.View
-	65, // 36: pulumirpc.ReadResponse.properties:type_name -> google.protobuf.Struct
-	65, // 37: pulumirpc.ReadResponse.inputs:type_name -> google.protobuf.Struct
-	65, // 38: pulumirpc.ListRequest.query:type_name -> google.protobuf.Struct
-	54, // 39: pulumirpc.ListResponse.computed:type_name -> pulumirpc.ListResponse.Computed
-	55, // 40: pulumirpc.ListResponse.result:type_name -> pulumirpc.ListResponse.Result
-	56, // 41: pulumirpc.ListResponse.continuation:type_name -> pulumirpc.ListResponse.Continuation
-	65, // 42: pulumirpc.UpdateRequest.olds:type_name -> google.protobuf.Struct
-	65, // 43: pulumirpc.UpdateRequest.news:type_name -> google.protobuf.Struct
-	65, // 44: pulumirpc.UpdateRequest.old_inputs:type_name -> google.protobuf.Struct
-	42, // 45: pulumirpc.UpdateRequest.old_views:type_name -> pulumirpc.View
-	65, // 46: pulumirpc.UpdateResponse.properties:type_name -> google.protobuf.Struct
-	65, // 47: pulumirpc.DeleteRequest.properties:type_name -> google.protobuf.Struct
-	65, // 48: pulumirpc.DeleteRequest.old_inputs:type_name -> google.protobuf.Struct
-	42, // 49: pulumirpc.DeleteRequest.old_views:type_name -> pulumirpc.View
-	59, // 50: pulumirpc.ConstructRequest.config:type_name -> pulumirpc.ConstructRequest.ConfigEntry
-	65, // 51: pulumirpc.ConstructRequest.inputs:type_name -> google.protobuf.Struct
-	60, // 52: pulumirpc.ConstructRequest.inputDependencies:type_name -> pulumirpc.ConstructRequest.InputDependenciesEntry
-	61, // 53: pulumirpc.ConstructRequest.providers:type_name -> pulumirpc.ConstructRequest.ProvidersEntry
-	58, // 54: pulumirpc.ConstructRequest.customTimeouts:type_name -> pulumirpc.ConstructRequest.CustomTimeouts
-	62, // 55: pulumirpc.ConstructRequest.resource_hooks:type_name -> pulumirpc.ConstructRequest.ResourceHooksBinding
-	66, // 56: pulumirpc.ConstructRequest.aliases:type_name -> pulumirpc.Alias
-	67, // 57: pulumirpc.ConstructRequest.replacement_trigger:type_name -> google.protobuf.Value
-	65, // 58: pulumirpc.ConstructResponse.state:type_name -> google.protobuf.Struct
-	64, // 59: pulumirpc.ConstructResponse.stateDependencies:type_name -> pulumirpc.ConstructResponse.StateDependenciesEntry
-	65, // 60: pulumirpc.ErrorResourceInitFailed.properties:type_name -> google.protobuf.Struct
-	65, // 61: pulumirpc.ErrorResourceInitFailed.inputs:type_name -> google.protobuf.Struct
-	65, // 62: pulumirpc.View.inputs:type_name -> google.protobuf.Struct
-	65, // 63: pulumirpc.View.outputs:type_name -> google.protobuf.Struct
-	47, // 64: pulumirpc.CallRequest.ArgDependenciesEntry.value:type_name -> pulumirpc.CallRequest.ArgumentDependencies
-	50, // 65: pulumirpc.CallResponse.ReturnDependenciesEntry.value:type_name -> pulumirpc.CallResponse.ReturnDependencies
-	0,  // 66: pulumirpc.CheckRequest.AutonamingOptions.mode:type_name -> pulumirpc.CheckRequest.AutonamingOptions.Mode
-	23, // 67: pulumirpc.DiffResponse.DetailedDiffEntry.value:type_name -> pulumirpc.PropertyDiff
-	57, // 68: pulumirpc.ConstructRequest.InputDependenciesEntry.value:type_name -> pulumirpc.ConstructRequest.PropertyDependencies
-	63, // 69: pulumirpc.ConstructResponse.StateDependenciesEntry.value:type_name -> pulumirpc.ConstructResponse.PropertyDependencies
-	3,  // 70: pulumirpc.ResourceProvider.Handshake:input_type -> pulumirpc.ProviderHandshakeRequest
-	5,  // 71: pulumirpc.ResourceProvider.Parameterize:input_type -> pulumirpc.ParameterizeRequest
-	7,  // 72: pulumirpc.ResourceProvider.GetSchema:input_type -> pulumirpc.GetSchemaRequest
-	16, // 73: pulumirpc.ResourceProvider.CheckConfig:input_type -> pulumirpc.CheckRequest
-	19, // 74: pulumirpc.ResourceProvider.CheckConfig2:input_type -> pulumirpc.CheckConfigRequest
-	22, // 75: pulumirpc.ResourceProvider.DiffConfig:input_type -> pulumirpc.DiffRequest
-	9,  // 76: pulumirpc.ResourceProvider.Configure:input_type -> pulumirpc.ConfigureRequest
-	12, // 77: pulumirpc.ResourceProvider.Invoke:input_type -> pulumirpc.InvokeRequest
-	14, // 78: pulumirpc.ResourceProvider.Call:input_type -> pulumirpc.CallRequest
-	16, // 79: pulumirpc.ResourceProvider.Check:input_type -> pulumirpc.CheckRequest
-	22, // 80: pulumirpc.ResourceProvider.Diff:input_type -> pulumirpc.DiffRequest
-	25, // 81: pulumirpc.ResourceProvider.Create:input_type -> pulumirpc.CreateRequest
-	27, // 82: pulumirpc.ResourceProvider.Read:input_type -> pulumirpc.ReadRequest
-	29, // 83: pulumirpc.ResourceProvider.List:input_type -> pulumirpc.ListRequest
-	31, // 84: pulumirpc.ResourceProvider.Update:input_type -> pulumirpc.UpdateRequest
-	33, // 85: pulumirpc.ResourceProvider.Delete:input_type -> pulumirpc.DeleteRequest
-	34, // 86: pulumirpc.ResourceProvider.Construct:input_type -> pulumirpc.ConstructRequest
-	68, // 87: pulumirpc.ResourceProvider.Cancel:input_type -> google.protobuf.Empty
-	68, // 88: pulumirpc.ResourceProvider.GetPluginInfo:input_type -> google.protobuf.Empty
-	69, // 89: pulumirpc.ResourceProvider.Attach:input_type -> pulumirpc.PluginAttach
-	38, // 90: pulumirpc.ResourceProvider.GetMapping:input_type -> pulumirpc.GetMappingRequest
-	40, // 91: pulumirpc.ResourceProvider.GetMappings:input_type -> pulumirpc.GetMappingsRequest
-	4,  // 92: pulumirpc.ResourceProvider.Handshake:output_type -> pulumirpc.ProviderHandshakeResponse
-	6,  // 93: pulumirpc.ResourceProvider.Parameterize:output_type -> pulumirpc.ParameterizeResponse
-	8,  // 94: pulumirpc.ResourceProvider.GetSchema:output_type -> pulumirpc.GetSchemaResponse
-	17, // 95: pulumirpc.ResourceProvider.CheckConfig:output_type -> pulumirpc.CheckResponse
-	20, // 96: pulumirpc.ResourceProvider.CheckConfig2:output_type -> pulumirpc.CheckConfigResponse
-	24, // 97: pulumirpc.ResourceProvider.DiffConfig:output_type -> pulumirpc.DiffResponse
-	10, // 98: pulumirpc.ResourceProvider.Configure:output_type -> pulumirpc.ConfigureResponse
-	13, // 99: pulumirpc.ResourceProvider.Invoke:output_type -> pulumirpc.InvokeResponse
-	15, // 100: pulumirpc.ResourceProvider.Call:output_type -> pulumirpc.CallResponse
-	17, // 101: pulumirpc.ResourceProvider.Check:output_type -> pulumirpc.CheckResponse
-	24, // 102: pulumirpc.ResourceProvider.Diff:output_type -> pulumirpc.DiffResponse
-	26, // 103: pulumirpc.ResourceProvider.Create:output_type -> pulumirpc.CreateResponse
-	28, // 104: pulumirpc.ResourceProvider.Read:output_type -> pulumirpc.ReadResponse
-	30, // 105: pulumirpc.ResourceProvider.List:output_type -> pulumirpc.ListResponse
-	32, // 106: pulumirpc.ResourceProvider.Update:output_type -> pulumirpc.UpdateResponse
-	68, // 107: pulumirpc.ResourceProvider.Delete:output_type -> google.protobuf.Empty
-	35, // 108: pulumirpc.ResourceProvider.Construct:output_type -> pulumirpc.ConstructResponse
-	68, // 109: pulumirpc.ResourceProvider.Cancel:output_type -> google.protobuf.Empty
-	70, // 110: pulumirpc.ResourceProvider.GetPluginInfo:output_type -> pulumirpc.PluginInfo
-	68, // 111: pulumirpc.ResourceProvider.Attach:output_type -> google.protobuf.Empty
-	39, // 112: pulumirpc.ResourceProvider.GetMapping:output_type -> pulumirpc.GetMappingResponse
-	41, // 113: pulumirpc.ResourceProvider.GetMappings:output_type -> pulumirpc.GetMappingsResponse
-	92, // [92:114] is the sub-list for method output_type
-	70, // [70:92] is the sub-list for method input_type
-	70, // [70:70] is the sub-list for extension type_name
-	70, // [70:70] is the sub-list for extension extendee
-	0,  // [0:70] is the sub-list for field type_name
+	44, // 0: pulumirpc.ParameterizeRequest.args:type_name -> pulumirpc.ParameterizeRequest.ParametersArgs
+	45, // 1: pulumirpc.ParameterizeRequest.value:type_name -> pulumirpc.ParameterizeRequest.ParametersValue
+	46, // 2: pulumirpc.ConfigureRequest.variables:type_name -> pulumirpc.ConfigureRequest.VariablesEntry
+	66, // 3: pulumirpc.ConfigureRequest.args:type_name -> google.protobuf.Struct
+	47, // 4: pulumirpc.ConfigureErrorMissingKeys.missingKeys:type_name -> pulumirpc.ConfigureErrorMissingKeys.MissingKey
+	66, // 5: pulumirpc.InvokeRequest.args:type_name -> google.protobuf.Struct
+	66, // 6: pulumirpc.InvokeResponse.return:type_name -> google.protobuf.Struct
+	19, // 7: pulumirpc.InvokeResponse.failures:type_name -> pulumirpc.CheckFailure
+	66, // 8: pulumirpc.CallRequest.args:type_name -> google.protobuf.Struct
+	49, // 9: pulumirpc.CallRequest.argDependencies:type_name -> pulumirpc.CallRequest.ArgDependenciesEntry
+	50, // 10: pulumirpc.CallRequest.config:type_name -> pulumirpc.CallRequest.ConfigEntry
+	66, // 11: pulumirpc.CallResponse.return:type_name -> google.protobuf.Struct
+	19, // 12: pulumirpc.CallResponse.failures:type_name -> pulumirpc.CheckFailure
+	52, // 13: pulumirpc.CallResponse.returnDependencies:type_name -> pulumirpc.CallResponse.ReturnDependenciesEntry
+	66, // 14: pulumirpc.CheckRequest.olds:type_name -> google.protobuf.Struct
+	66, // 15: pulumirpc.CheckRequest.news:type_name -> google.protobuf.Struct
+	53, // 16: pulumirpc.CheckRequest.autonaming:type_name -> pulumirpc.CheckRequest.AutonamingOptions
+	66, // 17: pulumirpc.CheckRequest.old_outputs:type_name -> google.protobuf.Struct
+	66, // 18: pulumirpc.CheckResponse.inputs:type_name -> google.protobuf.Struct
+	19, // 19: pulumirpc.CheckResponse.failures:type_name -> pulumirpc.CheckFailure
+	66, // 20: pulumirpc.CheckConfigRequest.old_inputs:type_name -> google.protobuf.Struct
+	66, // 21: pulumirpc.CheckConfigRequest.new_inputs:type_name -> google.protobuf.Struct
+	66, // 22: pulumirpc.CheckConfigRequest.old_outputs:type_name -> google.protobuf.Struct
+	66, // 23: pulumirpc.CheckConfigResponse.inputs:type_name -> google.protobuf.Struct
+	22, // 24: pulumirpc.CheckConfigResponse.failures:type_name -> pulumirpc.CheckConfigFailure
+	0,  // 25: pulumirpc.CheckConfigFailure.hint:type_name -> pulumirpc.Hint
+	66, // 26: pulumirpc.DiffRequest.olds:type_name -> google.protobuf.Struct
+	66, // 27: pulumirpc.DiffRequest.news:type_name -> google.protobuf.Struct
+	66, // 28: pulumirpc.DiffRequest.old_inputs:type_name -> google.protobuf.Struct
+	2,  // 29: pulumirpc.PropertyDiff.kind:type_name -> pulumirpc.PropertyDiff.Kind
+	3,  // 30: pulumirpc.DiffResponse.changes:type_name -> pulumirpc.DiffResponse.DiffChanges
+	54, // 31: pulumirpc.DiffResponse.detailedDiff:type_name -> pulumirpc.DiffResponse.DetailedDiffEntry
+	66, // 32: pulumirpc.CreateRequest.properties:type_name -> google.protobuf.Struct
+	66, // 33: pulumirpc.CreateResponse.properties:type_name -> google.protobuf.Struct
+	66, // 34: pulumirpc.ReadRequest.properties:type_name -> google.protobuf.Struct
+	66, // 35: pulumirpc.ReadRequest.inputs:type_name -> google.protobuf.Struct
+	43, // 36: pulumirpc.ReadRequest.old_views:type_name -> pulumirpc.View
+	66, // 37: pulumirpc.ReadResponse.properties:type_name -> google.protobuf.Struct
+	66, // 38: pulumirpc.ReadResponse.inputs:type_name -> google.protobuf.Struct
+	66, // 39: pulumirpc.ListRequest.query:type_name -> google.protobuf.Struct
+	55, // 40: pulumirpc.ListResponse.computed:type_name -> pulumirpc.ListResponse.Computed
+	56, // 41: pulumirpc.ListResponse.result:type_name -> pulumirpc.ListResponse.Result
+	57, // 42: pulumirpc.ListResponse.continuation:type_name -> pulumirpc.ListResponse.Continuation
+	66, // 43: pulumirpc.UpdateRequest.olds:type_name -> google.protobuf.Struct
+	66, // 44: pulumirpc.UpdateRequest.news:type_name -> google.protobuf.Struct
+	66, // 45: pulumirpc.UpdateRequest.old_inputs:type_name -> google.protobuf.Struct
+	43, // 46: pulumirpc.UpdateRequest.old_views:type_name -> pulumirpc.View
+	66, // 47: pulumirpc.UpdateResponse.properties:type_name -> google.protobuf.Struct
+	66, // 48: pulumirpc.DeleteRequest.properties:type_name -> google.protobuf.Struct
+	66, // 49: pulumirpc.DeleteRequest.old_inputs:type_name -> google.protobuf.Struct
+	43, // 50: pulumirpc.DeleteRequest.old_views:type_name -> pulumirpc.View
+	60, // 51: pulumirpc.ConstructRequest.config:type_name -> pulumirpc.ConstructRequest.ConfigEntry
+	66, // 52: pulumirpc.ConstructRequest.inputs:type_name -> google.protobuf.Struct
+	61, // 53: pulumirpc.ConstructRequest.inputDependencies:type_name -> pulumirpc.ConstructRequest.InputDependenciesEntry
+	62, // 54: pulumirpc.ConstructRequest.providers:type_name -> pulumirpc.ConstructRequest.ProvidersEntry
+	59, // 55: pulumirpc.ConstructRequest.customTimeouts:type_name -> pulumirpc.ConstructRequest.CustomTimeouts
+	63, // 56: pulumirpc.ConstructRequest.resource_hooks:type_name -> pulumirpc.ConstructRequest.ResourceHooksBinding
+	67, // 57: pulumirpc.ConstructRequest.aliases:type_name -> pulumirpc.Alias
+	68, // 58: pulumirpc.ConstructRequest.replacement_trigger:type_name -> google.protobuf.Value
+	66, // 59: pulumirpc.ConstructResponse.state:type_name -> google.protobuf.Struct
+	65, // 60: pulumirpc.ConstructResponse.stateDependencies:type_name -> pulumirpc.ConstructResponse.StateDependenciesEntry
+	66, // 61: pulumirpc.ErrorResourceInitFailed.properties:type_name -> google.protobuf.Struct
+	66, // 62: pulumirpc.ErrorResourceInitFailed.inputs:type_name -> google.protobuf.Struct
+	66, // 63: pulumirpc.View.inputs:type_name -> google.protobuf.Struct
+	66, // 64: pulumirpc.View.outputs:type_name -> google.protobuf.Struct
+	48, // 65: pulumirpc.CallRequest.ArgDependenciesEntry.value:type_name -> pulumirpc.CallRequest.ArgumentDependencies
+	51, // 66: pulumirpc.CallResponse.ReturnDependenciesEntry.value:type_name -> pulumirpc.CallResponse.ReturnDependencies
+	1,  // 67: pulumirpc.CheckRequest.AutonamingOptions.mode:type_name -> pulumirpc.CheckRequest.AutonamingOptions.Mode
+	24, // 68: pulumirpc.DiffResponse.DetailedDiffEntry.value:type_name -> pulumirpc.PropertyDiff
+	58, // 69: pulumirpc.ConstructRequest.InputDependenciesEntry.value:type_name -> pulumirpc.ConstructRequest.PropertyDependencies
+	64, // 70: pulumirpc.ConstructResponse.StateDependenciesEntry.value:type_name -> pulumirpc.ConstructResponse.PropertyDependencies
+	4,  // 71: pulumirpc.ResourceProvider.Handshake:input_type -> pulumirpc.ProviderHandshakeRequest
+	6,  // 72: pulumirpc.ResourceProvider.Parameterize:input_type -> pulumirpc.ParameterizeRequest
+	8,  // 73: pulumirpc.ResourceProvider.GetSchema:input_type -> pulumirpc.GetSchemaRequest
+	17, // 74: pulumirpc.ResourceProvider.CheckConfig:input_type -> pulumirpc.CheckRequest
+	20, // 75: pulumirpc.ResourceProvider.CheckConfig2:input_type -> pulumirpc.CheckConfigRequest
+	23, // 76: pulumirpc.ResourceProvider.DiffConfig:input_type -> pulumirpc.DiffRequest
+	10, // 77: pulumirpc.ResourceProvider.Configure:input_type -> pulumirpc.ConfigureRequest
+	13, // 78: pulumirpc.ResourceProvider.Invoke:input_type -> pulumirpc.InvokeRequest
+	15, // 79: pulumirpc.ResourceProvider.Call:input_type -> pulumirpc.CallRequest
+	17, // 80: pulumirpc.ResourceProvider.Check:input_type -> pulumirpc.CheckRequest
+	23, // 81: pulumirpc.ResourceProvider.Diff:input_type -> pulumirpc.DiffRequest
+	26, // 82: pulumirpc.ResourceProvider.Create:input_type -> pulumirpc.CreateRequest
+	28, // 83: pulumirpc.ResourceProvider.Read:input_type -> pulumirpc.ReadRequest
+	30, // 84: pulumirpc.ResourceProvider.List:input_type -> pulumirpc.ListRequest
+	32, // 85: pulumirpc.ResourceProvider.Update:input_type -> pulumirpc.UpdateRequest
+	34, // 86: pulumirpc.ResourceProvider.Delete:input_type -> pulumirpc.DeleteRequest
+	35, // 87: pulumirpc.ResourceProvider.Construct:input_type -> pulumirpc.ConstructRequest
+	69, // 88: pulumirpc.ResourceProvider.Cancel:input_type -> google.protobuf.Empty
+	69, // 89: pulumirpc.ResourceProvider.GetPluginInfo:input_type -> google.protobuf.Empty
+	70, // 90: pulumirpc.ResourceProvider.Attach:input_type -> pulumirpc.PluginAttach
+	39, // 91: pulumirpc.ResourceProvider.GetMapping:input_type -> pulumirpc.GetMappingRequest
+	41, // 92: pulumirpc.ResourceProvider.GetMappings:input_type -> pulumirpc.GetMappingsRequest
+	5,  // 93: pulumirpc.ResourceProvider.Handshake:output_type -> pulumirpc.ProviderHandshakeResponse
+	7,  // 94: pulumirpc.ResourceProvider.Parameterize:output_type -> pulumirpc.ParameterizeResponse
+	9,  // 95: pulumirpc.ResourceProvider.GetSchema:output_type -> pulumirpc.GetSchemaResponse
+	18, // 96: pulumirpc.ResourceProvider.CheckConfig:output_type -> pulumirpc.CheckResponse
+	21, // 97: pulumirpc.ResourceProvider.CheckConfig2:output_type -> pulumirpc.CheckConfigResponse
+	25, // 98: pulumirpc.ResourceProvider.DiffConfig:output_type -> pulumirpc.DiffResponse
+	11, // 99: pulumirpc.ResourceProvider.Configure:output_type -> pulumirpc.ConfigureResponse
+	14, // 100: pulumirpc.ResourceProvider.Invoke:output_type -> pulumirpc.InvokeResponse
+	16, // 101: pulumirpc.ResourceProvider.Call:output_type -> pulumirpc.CallResponse
+	18, // 102: pulumirpc.ResourceProvider.Check:output_type -> pulumirpc.CheckResponse
+	25, // 103: pulumirpc.ResourceProvider.Diff:output_type -> pulumirpc.DiffResponse
+	27, // 104: pulumirpc.ResourceProvider.Create:output_type -> pulumirpc.CreateResponse
+	29, // 105: pulumirpc.ResourceProvider.Read:output_type -> pulumirpc.ReadResponse
+	31, // 106: pulumirpc.ResourceProvider.List:output_type -> pulumirpc.ListResponse
+	33, // 107: pulumirpc.ResourceProvider.Update:output_type -> pulumirpc.UpdateResponse
+	69, // 108: pulumirpc.ResourceProvider.Delete:output_type -> google.protobuf.Empty
+	36, // 109: pulumirpc.ResourceProvider.Construct:output_type -> pulumirpc.ConstructResponse
+	69, // 110: pulumirpc.ResourceProvider.Cancel:output_type -> google.protobuf.Empty
+	71, // 111: pulumirpc.ResourceProvider.GetPluginInfo:output_type -> pulumirpc.PluginInfo
+	69, // 112: pulumirpc.ResourceProvider.Attach:output_type -> google.protobuf.Empty
+	40, // 113: pulumirpc.ResourceProvider.GetMapping:output_type -> pulumirpc.GetMappingResponse
+	42, // 114: pulumirpc.ResourceProvider.GetMappings:output_type -> pulumirpc.GetMappingsResponse
+	93, // [93:115] is the sub-list for method output_type
+	71, // [71:93] is the sub-list for method input_type
+	71, // [71:71] is the sub-list for extension type_name
+	71, // [71:71] is the sub-list for extension extendee
+	0,  // [0:71] is the sub-list for field type_name
 }
 
 func init() { file_pulumi_provider_proto_init() }
@@ -5298,7 +5376,7 @@ func file_pulumi_provider_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pulumi_provider_proto_rawDesc), len(file_pulumi_provider_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      4,
 			NumMessages:   62,
 			NumExtensions: 0,
 			NumServices:   1,
